@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
             self.ui.tournamentSizeTextEdit.setVisible(False)
             self.ui.label_16.setVisible(False)
 
+
     def validateParams(self, ui, plotWindow):
         textEdits = (
             ui.precisionTextEdit,
@@ -135,18 +136,34 @@ class MainWindow(QMainWindow):
                 calculationFunction = ui.calculateFunctionComboBox.currentText()
                 optimizationMethod = "min" if ui.minimumRadioButton.isChecked() else "max"
 
-                userInput = UserInput(range_begin, range_end, epochs, param_num, precision, population_size,
-                                      crossMethod, cross_prob,
-                                      inversion_prob, elite_strategy, mutationMethod, mutation_prob, selectionMethod,
-                                      calculationFunction,
-                                      best_to_select, tournament_size, optimizationMethod)
-
+                if(self.ui.selectionMethodComboBox == "Tournament Selection"):
+                    userInput = UserInput(range_begin, range_end, epochs, param_num, precision, population_size,
+                                          crossMethod, cross_prob,
+                                          inversion_prob, elite_strategy, mutationMethod, mutation_prob,
+                                          selectionMethod,
+                                          calculationFunction,
+                                          best_to_select, tournament_size, optimizationMethod)
+                else:
+                    userInput = UserInput(range_begin, range_end, epochs, param_num, precision, population_size,
+                                          crossMethod, cross_prob,
+                                          inversion_prob, elite_strategy, mutationMethod, mutation_prob,
+                                          selectionMethod,
+                                          calculationFunction,
+                                          best_to_select, optimizationMethod)
                 userInput.toString()
+                self.changePlotsComboBox()
                 plotWindow.show()
                 geneticAlgorithm = GeneticAlgorithm()
                 geneticAlgorithm.calculate(userInput)
 
             except ValueError as error:
                 ui.warningLabel.setText(str(error))
+
+
+    def changePlotsComboBox(self):
+        if self.ui.maximumRadioButton.isChecked():
+            self.plot_window.ui.comboBox.setItemText(1, "Maximum Fitness Value Over Iterations")
+        else:
+            self.plot_window.ui.comboBox.setItemText(1, "Minimum Fitness Value Over Iterations")
 
 
