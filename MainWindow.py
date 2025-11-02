@@ -11,153 +11,117 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.plot_window = PlotWindow()
+
         self.ui.label_16.setVisible(False)
         self.ui.tournamentSizeTextEdit.setVisible(False)
-        self.ui.selectionMethodComboBox.currentTextChanged.connect(lambda: self.onSelectionMethodChange())
-        self.ui.calculateButton.clicked.connect(lambda: self.validateParams(self.ui, self.plot_window))
 
-    def onSelectionMethodChange(self):
-        if self.ui.selectionMethodComboBox.currentText() == "Tournament Selection":
-            self.ui.tournamentSizeTextEdit.setVisible(True)
-            self.ui.label_16.setVisible(True)
-        else:
-            self.ui.tournamentSizeTextEdit.setVisible(False)
-            self.ui.label_16.setVisible(False)
+        self.ui.selectionMethodComboBox.currentTextChanged.connect(self.on_selection_method_change)
+        self.ui.calculateButton.clicked.connect(self.on_calculate_button_clicked)
 
+    def on_selection_method_change(self):
+        """Pokazuje lub ukrywa pole rozmiaru turnieju na podstawie combo boxa."""
+        is_tournament = (self.ui.selectionMethodComboBox.currentText() == "Tournament Selection")
+        self.ui.tournamentSizeTextEdit.setVisible(is_tournament)
+        self.ui.label_16.setVisible(is_tournament)
 
-    def validateParams(self, ui, plotWindow):
+    
+    def _validate_field(self, widget, convert_to_type, error_msg, validation_rule=None):
+        """Funkcja pomocnicza - waliduje pojedynzce pola."""
+        try:
+            value = convert_to_type(widget.toPlainText())
+        except ValueError:
+            raise ValueError(error_msg)
+
+        if validation_rule and not validation_rule(value):
+            raise ValueError(error_msg)
+        
+        return value
+    
+
+    def on_calculate_button_clicked(self):
+        """Główna metoda. Próbuje pobrać dane - jeśli się uda, uruchamia algorytm."""
+        try:
+            user_input = self._try_get_user_input()
+            self._run_algorithm(user_input)
+
+        except ValueError as e:
+            self.ui.warningLabel.setText(str(e))
+        except Exception as e:
+            self.ui.warningLabel.setText(f"Błąd wykonania: {e}")
+
+    
+    def _try_get_user_input(self):
+        """Zbiera i waliduje dane z formularza. """
         textEdits = (
-            ui.precisionTextEdit,
-            ui.rangeBeginningTextEdit,
-            ui.rangeEndTextEdit,
-            ui.epochsTextEdit,
-            ui.paramNumbersTextEdit,
-            ui.populationSizeTextEdit,
-            ui.crossProbabilityTextEdit,
-            ui.inversionProbabilityTextEdit,
-            ui.eliteStrategyTextEdit,
-            ui.mutationProbabilityTextEdit,
-            ui.bestToSelectTextEdit,
-            ui.tournamentSizeTextEdit,
+            self.ui.precisionTextEdit,
+            self.ui.rangeBeginningTextEdit,
+            self.ui.rangeEndTextEdit,
+            self.ui.epochsTextEdit,
+            self.ui.paramNumbersTextEdit,
+            self.ui.populationSizeTextEdit,
+            self.ui.crossProbabilityTextEdit,
+            self.ui.inversionProbabilityTextEdit,
+            self.ui.eliteStrategyTextEdit,
+            self.ui.mutationProbabilityTextEdit,
+            self.ui.bestToSelectTextEdit,
         )
+        if any(f.toPlainText().strip() == "" for f in textEdits):
+            raise ValueError("Fill in all of the fields")
+        
+        selection_method = self.ui.selectionMethodComboBox.currentText() 
+        if selection_method == "Tournament Selection" and self.ui.tournamentSizeTextEdit.toPlainText().strip() == "":
+            raise ValueError("Fill in Tournament Size field")
 
-        empty_fields = [f for f in textEdits if f.toPlainText().strip() == ""]
+        is_positive_int = lambda v: v > 0
+        is_probability = lambda v: 0.0 < v < 1.0
 
-        if empty_fields:
-            ui.warningLabel.setText("Fill in all of the fields")
-        else:
-            try:
-                try:
-                    precision = int(textEdits[0].toPlainText())
-                except ValueError:
-                    raise ValueError("Precision must be a integer number")
+        precision = self._validate_field(self.ui.precisionTextEdit, int, "Precision must be a integer number.")
+        range_begin = self._validate_field(self.ui.rangeBeginningTextEdit, float, "Range begin must be a number.")
+        range_end = self._validate_field(self.ui.rangeEndTextEdit, float, "Range end must be a number.")
+    
+        if range_end <= range_begin:
+            raise ValueError("Range end must be greater than range begin")
+        
+        epochs = self._validate_field(self.ui.epochsTextEdit, int, "Epochs must be positive integer.", is_positive_int)
+        param_num = self._validate_field(self.ui.paramNumbersTextEdit, int, "Number of params must be positive integer.", is_positive_int)
+        population_size = self._validate_field(self.ui.populationSizeTextEdit, int, "Population size must be positive integer.", is_positive_int)
 
-                try:
-                    range_begin = float(textEdits[1].toPlainText())
-                except ValueError:
-                    raise ValueError("Range begin must be an integer/float")
+        cross_prob = self._validate_field(self.ui.crossProbabilityTextEdit, float, "Cross probability must be (0, 1).", is_probability)
+        inversion_prob = self._validate_field(self.ui.inversionProbabilityTextEdit, float, "Inversion probability must be (0, 1).", is_probability)
+        elite_strategy = self._validate_field(self.ui.eliteStrategyTextEdit, float, "Elite strategy must be (0, 1).", is_probability)
+        mutation_prob = self._validate_field(self.ui.mutationProbabilityTextEdit, float, "Mutation probability must be (0, 1).", is_probability)
+        best_to_select = self._validate_field(self.ui.bestToSelectTextEdit, float, "Best to select must be (0, 1).", is_probability)
 
-                try:
-                    range_end = float(textEdits[2].toPlainText())
-                except ValueError:
-                    raise ValueError("Range end must be an integer/float")
-                if range_end <= range_begin:
-                    raise ValueError("Range end must be greater than range begin")
+        tournament_size = None
+        if selection_method == "Tournament Selection":
+            tournament_size = self._validate_field(self.ui.tournamentSizeTextEdit, int, "Tournament size must be a positive integer.", is_positive_int)
 
-                try:
-                    epochs = int(textEdits[3].toPlainText())
-                except ValueError:
-                    raise ValueError("Epochs must be positive integer")
-                if epochs <= 0:
-                    raise ValueError("Epochs must be positive integer")
+        cross_method = self.ui.crossMethodComboBox.currentText()
+        mutation_method = self.ui.mutationMethodComboBox.currentText()
+        calculation_function = self.ui.calculateFunctionComboBox.currentText()
+        optimization_method = "min" if self.ui.minimumRadioButton.isChecked() else "max"
 
-                try:
-                    param_num = int(textEdits[4].toPlainText())
-                except ValueError:
-                    raise ValueError("Number of parameters must be positive integer")
-                if param_num <= 0:
-                    raise ValueError("Number of parameters must be positive integer")
+        self.ui.warningLabel.setText("")
+        print("All correct. Creating UserInput...")
 
-                try:
-                    population_size = int(textEdits[5].toPlainText())
-                except ValueError:
-                    raise ValueError("Population size must be positive integer")
-                if population_size <= 0:
-                    raise ValueError("Population size must be positive integer")
+        return UserInput(range_begin, range_end, epochs, 
+                        param_num, precision, population_size,
+                        cross_method, cross_prob, inversion_prob, 
+                        elite_strategy, mutation_method, mutation_prob,
+                        selection_method, calculation_function, best_to_select, 
+                        optimization_method, tournament_size)
+    
 
-                try:
-                    cross_prob = float(textEdits[6].toPlainText())
-                except ValueError:
-                    raise ValueError("Cross probability must be a decimal number between 0 and 1")
-                if not (0.0 < cross_prob < 1.0):
-                    raise ValueError("Cross probability must be a decimal number between 0 and 1")
-
-                try:
-                    inversion_prob = float(textEdits[7].toPlainText())
-                except ValueError:
-                    raise ValueError("Inversion probability must be a decimal number between 0 and 1")
-                if not (0.0 < inversion_prob < 1.0):
-                    raise ValueError("Inversion probability must be a decimal number between 0 and 1")
-
-                try:
-                    elite_strategy = float(textEdits[8].toPlainText())
-                except ValueError:
-                    raise ValueError("Elite strategy must be a decimal number between 0 and 1")
-                if not (0.0 < elite_strategy < 1.0):
-                    raise ValueError("Elite strategy must be a decimal number between 0 and 1")
-
-                try:
-                    mutation_prob = float(textEdits[9].toPlainText())
-                except ValueError:
-                    raise ValueError("Mutation probability must be a decimal number between 0 and 1")
-                if not (0.0 < mutation_prob < 1.0):
-                    raise ValueError("Mutation probability must be a decimal number between 0 and 1")
-
-                try:
-                    best_to_select = float(textEdits[10].toPlainText())
-                except ValueError:
-                    raise ValueError("Best to select must be a decimal number between 0 and 1")
-                if not (0.0 < best_to_select < 1.0):
-                    raise ValueError("Best to select must be a decimal number between 0 and 1")
-
-                try:
-                    tournament_size = int(textEdits[11].toPlainText())
-                except ValueError:
-                    raise ValueError("Tournament size must be an integer greater than 0")
-                if tournament_size <= 0:
-                    raise ValueError("Tournament size must be an integer greater than 0")
-
-                ui.warningLabel.setText("")
-                print("All correct")
-
-                crossMethod = ui.crossMethodComboBox.currentText()
-                mutationMethod = ui.mutationMethodComboBox.currentText()
-                selectionMethod = ui.selectionMethodComboBox.currentText()
-                calculationFunction = ui.calculateFunctionComboBox.currentText()
-                optimizationMethod = "min" if ui.minimumRadioButton.isChecked() else "max"
-
-                if(self.ui.selectionMethodComboBox == "Tournament Selection"):
-                    userInput = UserInput(range_begin, range_end, epochs, param_num, precision, population_size,
-                                          crossMethod, cross_prob,
-                                          inversion_prob, elite_strategy, mutationMethod, mutation_prob,
-                                          selectionMethod,
-                                          calculationFunction,
-                                          best_to_select, tournament_size, optimizationMethod)
-                else:
-                    userInput = UserInput(range_begin, range_end, epochs, param_num, precision, population_size,
-                                          crossMethod, cross_prob,
-                                          inversion_prob, elite_strategy, mutationMethod, mutation_prob,
-                                          selectionMethod,
-                                          calculationFunction,
-                                          best_to_select, optimizationMethod)
-                userInput.toString()
-                self.changePlotsComboBox()
-                plotWindow.show()
-                geneticAlgorithm = GeneticAlgorithm()
-                geneticAlgorithm.calculate(userInput)
-
-            except ValueError as error:
-                ui.warningLabel.setText(str(error))
+    def _run_algorithm(self, user_input: UserInput):
+        print("Running the algorithm...")
+        user_input.toString()
+        
+        self.changePlotsComboBox()
+        self.plot_window.show()
+        
+        geneticAlgorithm = GeneticAlgorithm()
+        geneticAlgorithm.calculate(user_input)
+        print("The calculations have finished.")
 
 
     def changePlotsComboBox(self):
@@ -165,5 +129,3 @@ class MainWindow(QMainWindow):
             self.plot_window.ui.comboBox.setItemText(1, "Maximum Fitness Value Over Iterations")
         else:
             self.plot_window.ui.comboBox.setItemText(1, "Minimum Fitness Value Over Iterations")
-
-
