@@ -1,13 +1,12 @@
-import random
 from typing import List
 from Individual import Individual
 from FitnessFunc import FitnessFunc
-from UserInput import UserInput
+from GeneticOperators import GeneticOperators
 
 class GeneticAlgorithm:
-    def __init__(self):
-        self.user_input = None
-        self.fitness_func = None
+    def __init__(self, user_input):
+        self.user_input = user_input
+        self.fitness_func = FitnessFunc.get_function(user_input.func_name)
         self.population: List[Individual] = []
 
         self.best_fitness_history = []
@@ -38,7 +37,7 @@ class GeneticAlgorithm:
 
     
     def print_population(self):
-        print("--- Current State ---")
+        print("\n--- Current State ---")
         if self.population:
             print(f"    Population size:    {len(self.population)}")
             try:
@@ -52,15 +51,6 @@ class GeneticAlgorithm:
         
         else:
             print(" No population yet!")
-
-    def calculate(self, user_input):
-        self.user_input = user_input
-        try:
-            self.fitness_func = FitnessFunc.get_function(user_input.func_name)
-        except ValueError as e:
-            print(f"Błąd podczas obliczania wartości funkcji {user_input.func_name}.")
-
-        self._init_population()
 
 
     def _init_population(self):
@@ -89,7 +79,30 @@ class GeneticAlgorithm:
             fitness = -value
         
         individual.fitness = round(fitness, self.user_input.precision)
-    
 
-# Dalej:
-# selekcja, krzyżowanie, mutacja, strategia elitarna, ...
+
+    def _selection(self):
+        parents =[]
+
+        if self.user_input.selection_method == "Tournament Selection":
+            for _ in range(self.user_input.population_size):
+                selected = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size)
+                parents.append(selected)
+            
+        return parents
+
+    
+    def calculate(self):
+        self._init_population()
+
+        for epoch in range(self.user_input.epochs):
+            print(f"--- Epoch {epoch + 1}/{self.user_input.epochs} ---")
+
+            parents = self._selection()
+            offspring = []
+        
+        # epochs
+        # selection
+        # crossover
+        # mutation
+    

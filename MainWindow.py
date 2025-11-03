@@ -118,10 +118,12 @@ class MainWindow(QMainWindow):
         self.changePlotsComboBox()
         self.plot_window.show()
         
-        genetic_algorithm = GeneticAlgorithm()
-        genetic_algorithm.calculate(user_input)
+        genetic_algorithm = GeneticAlgorithm(user_input)
         print(genetic_algorithm)
+        genetic_algorithm.calculate()
         genetic_algorithm.print_population()
+        
+
 
 
     def changePlotsComboBox(self):
