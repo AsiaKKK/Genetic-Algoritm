@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QMainWindow
 from UI_MainWindow import Ui_MainWindow
 from PlotsWindow import PlotWindow
 from UserInput import UserInput
-from GeneticAlgoritm import GeneticAlgorithm
+from GeneticAlgorithm import GeneticAlgorithm
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
 
         cross_method = self.ui.crossMethodComboBox.currentText()
         mutation_method = self.ui.mutationMethodComboBox.currentText()
-        calculation_function = self.ui.calculateFunctionComboBox.currentText()
+        func_name = self.ui.calculateFunctionComboBox.currentText()
         optimization_method = "min" if self.ui.minimumRadioButton.isChecked() else "max"
 
         self.ui.warningLabel.setText("")
@@ -108,20 +108,20 @@ class MainWindow(QMainWindow):
                         param_num, precision, population_size,
                         cross_method, cross_prob, inversion_prob, 
                         elite_strategy, mutation_method, mutation_prob,
-                        selection_method, calculation_function, best_to_select, 
+                        selection_method, func_name, best_to_select, 
                         optimization_method, tournament_size)
     
 
     def _run_algorithm(self, user_input: UserInput):
         print("Running the algorithm...")
-        user_input.toString()
         
         self.changePlotsComboBox()
         self.plot_window.show()
         
-        geneticAlgorithm = GeneticAlgorithm()
-        geneticAlgorithm.calculate(user_input)
-        print("The calculations have finished.")
+        genetic_algorithm = GeneticAlgorithm()
+        genetic_algorithm.calculate(user_input)
+        print(genetic_algorithm)
+        genetic_algorithm.print_population()
 
 
     def changePlotsComboBox(self):

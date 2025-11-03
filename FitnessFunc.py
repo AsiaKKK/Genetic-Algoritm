@@ -23,4 +23,3 @@ class FitnessFunc:
             print(f"Error - próba obliczenia logarytmu z liczby niedodatniej w {params}")
             return None
     
-    # To czy mamy problem maksymalizacji czy minimalizacji ma być obsługiwane przez GeneticAlgorithm, tu funkcje są sztywno zdefiniowane i tego nie ruszamy
