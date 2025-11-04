@@ -6,7 +6,7 @@ class GeneticOperators:
 
     # --- SELEKCJA
     @staticmethod
-    def selection_best():
+    def selection_best(population: List[Individual], percent_best_to_select):
         pass
 
 
