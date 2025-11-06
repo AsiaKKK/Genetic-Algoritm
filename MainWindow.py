@@ -136,6 +136,8 @@ class MainWindow(QMainWindow):
         genetic_algorithm = GeneticAlgorithm(user_input)
         print(genetic_algorithm)
         genetic_algorithm.calculate()
+        self.plot_window.ui.fitnessResultValue.setText(str(genetic_algorithm.best_fit))
+        self.plot_window.ui.label_6.setText(str(genetic_algorithm.phenotype))
 
 
     def changePlotsComboBox(self):

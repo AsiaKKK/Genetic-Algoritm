@@ -2,6 +2,8 @@ from typing import List
 from Individual import Individual
 from FitnessFunc import FitnessFunc
 from GeneticOperators import GeneticOperators
+import UserInput
+import PlotsWindow
 import math
 import random
 
@@ -43,12 +45,18 @@ class GeneticAlgorithm:
         if self.population:
             print(f"    Population size:    {len(self.population)}")
             try:
-                best_fit = (
+                self.best_fit = (
                     max(individual.fitness for individual in self.population)
                     if self.user_input.optimization_method == 'max'
                     else min(individual.fitness for individual in self.population)
                 )
-                print(f"    Current best fitness:   {best_fit}")
+                self.phenotype = (
+                    max(individual.phenotype for individual in self.population)
+                    if self.user_input.optimization_method == 'max'
+                    else min(individual.phenotype for individual in self.population)
+                )
+                print(f"    Current best fitness:   {self.best_fit}")
+
             except ValueError:
                 print(f"    Current best fitness:   N/A")
 
@@ -101,7 +109,7 @@ class GeneticAlgorithm:
         if self.user_input.selection_method == 'Best Selection':
             parents = GeneticOperators.selection_best(self.population, self.user_input.percent_best_to_select, self.user_input.optimization_method)
         elif self.user_input.selection_method == "Tournament Selection":
-            parents = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size, self.user_input.percent_best_to_select, "max")
+            parents = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size, self.user_input.percent_best_to_select, self.user_input.optimization_method)
         elif self.user_input.selection_method == "Roulette Selection":
             parents = GeneticOperators.selection_roulette(self.population, self.user_input.optimization_method, self.user_input.percent_best_to_select)
         

@@ -51,7 +51,7 @@ class Ui_PlotsWindow(object):
         self.fitnessResultValue.setFont(font)
         self.fitnessResultValue.setObjectName("fitnessResultValue")
         self.label_6 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_6.setGeometry(QtCore.QRect(570, 240, 81, 16))
+        self.label_6.setGeometry(QtCore.QRect(570, 240, 200, 16))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_6.setFont(font)

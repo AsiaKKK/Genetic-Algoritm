@@ -1,5 +1,6 @@
 from typing import List
 import random
+import UserInput
 import math
 
 class Individual:
@@ -12,9 +13,9 @@ class Individual:
 
 
     def __init__(self, param_num, bits_per_param, chromosome: List[int] = None):
-        self.param_num = param_num
-        self.bits_per_param = bits_per_param
-        self.num_bits = param_num * bits_per_param
+        self.param_num = param_num #liczba parametrow
+        self.bits_per_param = bits_per_param #liczba genow dla jednogo parametru w reprezentacji binarnej
+        self.num_bits = param_num * bits_per_param #liczba wszystkich genow
 
         if chromosome:
             self.chromosome: List[int] = chromosome
@@ -54,7 +55,7 @@ class Individual:
         """Dekodujemy pojedynczy parametr (fragment binanrego chromosomu) na float."""
         # x = a + decimal(łańcuch_binarny) * (b-a)/(2^pr- 1)
         a, b = range_begin, range_end
-        x = a + self.to_decimal(param) * (b - a) / (2**self.bits_per_param - 1)
+        x = a + self.to_decimal(param) * (b - a) / (2**self.bits_per_param - 1)#dodac zaokraglenie do precyzji
 
         return x
     
@@ -72,7 +73,7 @@ class Individual:
             phenotype.append(self._decode_param(p, range_begin, range_end))
         self.phenotype = phenotype
 
-        #print(phenotype)
+        print(phenotype)
 
         return phenotype
     
