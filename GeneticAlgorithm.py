@@ -50,12 +50,12 @@ class GeneticAlgorithm:
                     if self.user_input.optimization_method == 'max'
                     else min(individual.fitness for individual in self.population)
                 )
-                self.phenotype = (
-                    max(individual.phenotype for individual in self.population)
-                    if self.user_input.optimization_method == 'max'
-                    else min(individual.phenotype for individual in self.population)
-                )
-                print(f"    Current best fitness:   {self.best_fit}")
+                for ind in self.population:
+                    if ind.fitness == self.best_fit:
+                        self.phenotype = ind.phenotype
+                        break
+
+                print(f"    Current best fitness: Individual(params={self.phenotype},fitness= {self.best_fit})")
 
             except ValueError:
                 print(f"    Current best fitness:   N/A")

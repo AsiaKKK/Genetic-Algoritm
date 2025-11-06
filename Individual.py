@@ -21,8 +21,8 @@ class Individual:
 
 
     def __repr__(self):
-        f_val = f"{self.fitness:.4f}" if self.fitness is not None else "None"
-        p_val = [f"{p:.2f}" for p in self.phenotype]
+        f_val = f"{self.fitness}" if self.fitness is not None else "None"
+        p_val = [f"{p}" for p in self.phenotype]
         return f"Individual(params={p_val},   fitness={f_val})"
     
 
@@ -59,6 +59,6 @@ class Individual:
             phenotype.append(self._decode_param(p, range_begin, range_end, precision))
         self.phenotype = phenotype
 
-        print(phenotype)
+        #print(phenotype)
 
         return phenotype
