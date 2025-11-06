@@ -93,7 +93,8 @@ class GeneticAlgorithm:
     def _evaluate(self, individual):
         value = self.fitness_func(individual.get_phenotype(
             self.user_input.range_begin, 
-            self.user_input.range_end)
+            self.user_input.range_end,
+            self.user_input.precision)
             )
 
         if self.user_input.optimization_method == 'min':

@@ -51,16 +51,16 @@ class Individual:
         return suma
 
 
-    def _decode_param(self, param: List[int], range_begin, range_end):
+    def _decode_param(self, param: List[int], range_begin, range_end, precision):
         """Dekodujemy pojedynczy parametr (fragment binanrego chromosomu) na float."""
         # x = a + decimal(łańcuch_binarny) * (b-a)/(2^pr- 1)
         a, b = range_begin, range_end
-        x = a + self.to_decimal(param) * (b - a) / (2**self.bits_per_param - 1)#dodac zaokraglenie do precyzji
+        x = round(a + self.to_decimal(param) * (b - a) / (2**self.bits_per_param - 1), precision)#dodac zaokraglenie do precyzji
 
         return x
     
 
-    def get_phenotype(self, range_begin, range_end):
+    def get_phenotype(self, range_begin, range_end, precision):
         if self.phenotype is not None:
             return self.phenotype
         
@@ -70,7 +70,7 @@ class Individual:
 
         phenotype = []
         for p in params:
-            phenotype.append(self._decode_param(p, range_begin, range_end))
+            phenotype.append(self._decode_param(p, range_begin, range_end, precision))
         self.phenotype = phenotype
 
         print(phenotype)
