@@ -3,6 +3,7 @@ from Individual import Individual
 from FitnessFunc import FitnessFunc
 from GeneticOperators import GeneticOperators
 import math
+import random
 
 class GeneticAlgorithm:
     def __init__(self, user_input):
@@ -69,16 +70,16 @@ class GeneticAlgorithm:
     def _init_population(self):
         """Wykonuje początkową inicjalizajcę populacji wg. parametrów z user_input."""
         self.population = []
-        for i in range(self.user_input.population_size):
+        for _ in range(self.user_input.population_size):
+
             ind = Individual(
                 self.user_input.param_num,
-                self.get_bits_per_param()
+                self.get_bits_per_param(),
             )
 
             self._evaluate(ind)
 
             self.population.append(ind)
-            print(ind)
 
 
     def _evaluate(self, individual):
@@ -100,28 +101,76 @@ class GeneticAlgorithm:
         if self.user_input.selection_method == 'Best Selection':
             parents = GeneticOperators.selection_best(self.population, self.user_input.percent_best_to_select, self.user_input.optimization_method)
         elif self.user_input.selection_method == "Tournament Selection":
-            parents = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size, self.user_input.percent_best_to_select,"max")
+            parents = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size, self.user_input.percent_best_to_select, "max")
         elif self.user_input.selection_method == "Roulette Selection":
             parents = GeneticOperators.selection_roulette(self.population, self.user_input.optimization_method, self.user_input.percent_best_to_select)
-
         
         return parents
+    
+
+    def _crossover(self, parents, offspring_missing_num):
+        bits_per_param = self.get_bits_per_param()
+
+        if self.user_input.cross_method == 'One Point':
+            offspring = GeneticOperators.cross_one_point(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
+
+        elif self.user_input.cross_method == 'Two Point':
+            offspring = GeneticOperators.cross_two_point(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
+
+        elif self.user_input.cross_method == 'Homogenius':
+            offspring = GeneticOperators.cross_homogenous(parents, self.user_input.cross_probability,self.user_input.param_num, bits_per_param, offspring_missing_num)
+
+        elif self.user_input.cross_method == 'Granular':
+            offspring = GeneticOperators.cross_granular(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
+
+        return offspring
+
+    
+    def _mutation(self, offspring):
+        if self.user_input.mutation_method == 'Edge':
+            offspring = GeneticOperators.mutation_edge(offspring, self.user_input.mutation_probability)
+
+        elif self.user_input.mutation_method == 'One Point':
+            offspring = GeneticOperators.mutation_one_point(offspring, self.user_input.mutation_probability)
+
+        elif self.user_input.mutation_method == 'Two Points':
+            offspring = GeneticOperators.mutation_two_points(offspring, self.user_input.mutation_probability)
+
+        return offspring
 
     
     def calculate(self):
         self._init_population()
 
-        best_individuals = GeneticOperators.selection_best(self.population,self.user_input.percent_elite_strategy, self.user_input.optimization_method)
-        parents = best_individuals + self._selection()
-        print("PARENTS:", parents, "SIZE:", len(parents))
-        # for epoch in range(self.user_input.epochs):
-        #     print(f"--- Epoch {epoch + 1}/{self.user_input.epochs} ---")
-        #
-        #     parents = self._selection()
-        #     offspring = []
-        
-        # epochs
-        # selection
-        # crossover
-        # mutation
-    
+        for epoch in range(self.user_input.epochs):
+            print(f"--- Epoch {epoch + 1}/{self.user_input.epochs} ---")
+            new_population =[]
+            # selekcja elit - od razu do następnej iteracji
+            elite_best_individuals = GeneticOperators.selection_best(self.population,self.user_input.percent_elite_strategy, self.user_input.optimization_method)
+            offspring_missing_num = self.user_input.population_size - len(elite_best_individuals)
+            new_population.extend(elite_best_individuals)
+            # pula rodziców do krzyżowania:
+            parents = self._selection()
+                
+            # print("PARENTS:")
+            # for p in parents:
+            #     print(p)
+            # print(f"SIZE: {len(parents)}")
+
+            offspring = self._crossover(parents, offspring_missing_num)
+            mutated_offspring = self._mutation(offspring)
+
+            #print("\nOFFSPRING AFTER MUTATION:")
+            for o in mutated_offspring:
+                self._evaluate(o)  # !!!
+            #     print(o)
+            # print(f"SIZE: {len(mutated_offspring)}")
+
+            new_population.extend(mutated_offspring)
+            self.population = new_population
+
+            # print("\n\nNEW POPULATION:")
+            # for i in new_population:
+            #     print(i)
+            # print(f"SIZE: {len(new_population)}")
+            self.print_population()

@@ -11,18 +11,20 @@ class Individual:
     #     self.fitness: float = None
 
 
-    def __init__(self, param_num, bits_per_param):
+    def __init__(self, param_num, bits_per_param, chromosome: List[int] = None):
         self.param_num = param_num
         self.bits_per_param = bits_per_param
         self.num_bits = param_num * bits_per_param
 
-        self.chromosome: List[int] = [
-            random.randint(0, 1) for _ in range(self.num_bits)
-        ]
-        
+        if chromosome:
+            self.chromosome: List[int] = chromosome
+        else:
+            self.chromosome: List[int] = [
+                random.randint(0, 1) for _ in range(self.num_bits)
+            ]
+            
         self.phenotype: List[float] = None
         self.fitness: float = None
-
 
 
     def __repr__(self):
@@ -70,7 +72,7 @@ class Individual:
             phenotype.append(self._decode_param(p, range_begin, range_end))
         self.phenotype = phenotype
 
-        print(phenotype)
+        #print(phenotype)
 
         return phenotype
     

@@ -136,7 +136,6 @@ class MainWindow(QMainWindow):
         genetic_algorithm = GeneticAlgorithm(user_input)
         print(genetic_algorithm)
         genetic_algorithm.calculate()
-        genetic_algorithm.print_population()
 
 
     def changePlotsComboBox(self):
