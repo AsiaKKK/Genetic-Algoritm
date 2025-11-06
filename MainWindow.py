@@ -1,3 +1,5 @@
+import time
+
 from PyQt6.QtWidgets import QMainWindow
 
 from UI_MainWindow import Ui_MainWindow
@@ -129,15 +131,20 @@ class MainWindow(QMainWindow):
 
     def _run_algorithm(self, user_input: UserInput):
         print("Running the algorithm...")
-        
+        start = time.time()
+
+
         self.changePlotsComboBox()
         self.plot_window.show()
         
         genetic_algorithm = GeneticAlgorithm(user_input)
         print(genetic_algorithm)
         genetic_algorithm.calculate()
+        end = time.time()
+        elapsed = end - start
         self.plot_window.ui.fitnessResultValue.setText(str(genetic_algorithm.best_fit))
         self.plot_window.ui.label_6.setText(str(genetic_algorithm.phenotype))
+        self.plot_window.ui.timeValue.setText(f"{elapsed:.4f} sec")
 
 
     def changePlotsComboBox(self):
