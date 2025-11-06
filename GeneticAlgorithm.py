@@ -2,10 +2,9 @@ from typing import List
 from Individual import Individual
 from FitnessFunc import FitnessFunc
 from GeneticOperators import GeneticOperators
-import UserInput
-import PlotsWindow
 import math
 import random
+import statistics
 
 class GeneticAlgorithm:
     def __init__(self, user_input):
@@ -13,8 +12,9 @@ class GeneticAlgorithm:
         self.fitness_func = FitnessFunc.get_function(user_input.func_name)
         self.population: List[Individual] = []
 
-        #self.best_fitness_history = []
-        #self.avg_fitness_history = []
+        self.best_fitness_history = []
+        self.avg_fitness_history = []
+        self.std_fitness_history = []
 
 
     def __repr__(self):
@@ -147,7 +147,61 @@ class GeneticAlgorithm:
 
         return offspring
 
+
+    def _inversion(self, offspring):
+        num_bits = len(offspring[0].chromosome)
+
+        for o in offspring:
+            alpha = random.random()
+
+            if alpha <= self.user_input.inversion_probability:
+                cut1 = random.randint(0, num_bits - 1)
+                cut2 = random.randint(0, num_bits - 1)
+            
+                while cut1 == cut2:
+                    cut2 = random.randint(0, num_bits - 1)
+
+                p1 = min(cut1, cut2)
+                p2 = max(cut1, cut2)
+
+                for i in range(p1, p2 + 1):
+                    o.chromosome[i] = 1 - o.chromosome[i]
+
+        return offspring
+
     
+    def add_best_fit(self):
+        best_fitness = min(individual.fitness for individual in self.population)
+        
+        if self.user_input.optimization_method == 'max':
+            self.best_fitness_history.append(-best_fitness)
+        else:
+            self.best_fitness_history.append(best_fitness)
+
+
+    def add_avg_fit(self):
+        if self.user_input.optimization_method == 'max':
+            total = sum(-ind.fitness for ind in self.population)
+        else:
+            total = sum(ind.fitness for ind in self.population)
+        
+        avg_fit = total / len(self.population)
+        self.avg_fitness_history.append(avg_fit)
+
+
+    def add_std_fit(self):
+        if self.user_input.optimization_method == 'max':
+            actual_values = [-ind.fitness for ind in self.population]
+        else:
+            actual_values = [ind.fitness for ind in self.population]
+        std_dev = statistics.stdev(actual_values)
+        self.std_fitness_history.append(std_dev)
+
+
+    def get_history(self):
+        return self.best_fitness_history, self.avg_fitness_history, self.std_fitness_history
+
+
     def calculate(self):
         self._init_population()
 
@@ -160,26 +214,20 @@ class GeneticAlgorithm:
             new_population.extend(elite_best_individuals)
             # pula rodziców do krzyżowania:
             parents = self._selection()
-                
-            # print("PARENTS:")
-            # for p in parents:
-            #     print(p)
-            # print(f"SIZE: {len(parents)}")
 
             offspring = self._crossover(parents, offspring_missing_num)
             mutated_offspring = self._mutation(offspring)
+            mutated_offspring = self._inversion(offspring)
 
-            #print("\nOFFSPRING AFTER MUTATION:")
             for o in mutated_offspring:
                 self._evaluate(o)  # !!!
-            #     print(o)
-            # print(f"SIZE: {len(mutated_offspring)}")
 
             new_population.extend(mutated_offspring)
+            
             self.population = new_population
 
-            # print("\n\nNEW POPULATION:")
-            # for i in new_population:
-            #     print(i)
-            # print(f"SIZE: {len(new_population)}")
+            self.add_best_fit()
+            self.add_avg_fit()
+            self.add_std_fit()
+
             self.print_population()
