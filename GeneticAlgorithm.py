@@ -42,13 +42,17 @@ class GeneticAlgorithm:
         if self.population:
             print(f"    Population size:    {len(self.population)}")
             try:
-                best_fit = max(ind.fitness for ind in self.population)
+                best_fit = (
+                    max(individual.fitness for individual in self.population)
+                    if self.user_input.optimization_method == 'max'
+                    else min(individual.fitness for individual in self.population)
+                )
                 print(f"    Current best fitness:   {best_fit}")
             except ValueError:
                 print(f"    Current best fitness:   N/A")
 
-            for ind in self.population:
-                print(f"    {ind}")
+            for individual in self.population:
+                print(f"    {individual}")
         
         else:
             print(" No population yet!")
@@ -90,16 +94,16 @@ class GeneticAlgorithm:
         
         individual.fitness = round(fitness, self.user_input.precision)
 
-
     def _selection(self):
-        parents =[]
+        parents = []
         
         if self.user_input.selection_method == 'Best Selection':
-            selected = GeneticOperators.selection_best(self.population, self.user_input.percent_best_to_select)
+            parents = GeneticOperators.selection_best(self.population, self.user_input.percent_best_to_select, self.user_input.optimization_method)
         elif self.user_input.selection_method == "Tournament Selection":
-            for _ in range(self.user_input.population_size):
-                selected = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size)
-                parents.append(selected)
+            parents = GeneticOperators.selection_tournament(self.population, self.user_input.tournament_size, self.user_input.percent_best_to_select,"max")
+        elif self.user_input.selection_method == "Roulette Selection":
+            parents = GeneticOperators.selection_roulette(self.population, self.user_input.optimization_method, self.user_input.percent_best_to_select)
+
         
         return parents
 
@@ -107,11 +111,14 @@ class GeneticAlgorithm:
     def calculate(self):
         self._init_population()
 
-        for epoch in range(self.user_input.epochs):
-            print(f"--- Epoch {epoch + 1}/{self.user_input.epochs} ---")
-
-            parents = self._selection()
-            offspring = []
+        best_individuals = GeneticOperators.selection_best(self.population,self.user_input.percent_elite_strategy, self.user_input.optimization_method)
+        parents = best_individuals + self._selection()
+        print("PARENTS:", parents, "SIZE:", len(parents))
+        # for epoch in range(self.user_input.epochs):
+        #     print(f"--- Epoch {epoch + 1}/{self.user_input.epochs} ---")
+        #
+        #     parents = self._selection()
+        #     offspring = []
         
         # epochs
         # selection

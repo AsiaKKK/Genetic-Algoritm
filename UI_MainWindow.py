@@ -232,7 +232,7 @@ class Ui_MainWindow(object):
 "li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:\'Segoe UI\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">0.44</p></body></html>"))
-        self.optimizationMethodGroupBox.setTitle(_translate("MainWindow", "Optimization method"))
+        self.optimizationMethodGroupBox.setTitle(_translate("MainWindow", "Search optimum"))
         self.minimumRadioButton.setText(_translate("MainWindow", "Minimum"))
         self.maximumRadioButton.setText(_translate("MainWindow", "Maximum"))
         self.crossMethodComboBox.setItemText(0, _translate("MainWindow", "One Point"))
@@ -255,9 +255,9 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">5</p></body></html>"))
         self.label_11.setText(_translate("MainWindow", "Elite strategy %"))
         self.label_12.setText(_translate("MainWindow", "Inversion probability"))
-        self.calculateFunctionComboBox.setItemText(0, _translate("MainWindow", "Metoda 1"))
-        self.calculateFunctionComboBox.setItemText(1, _translate("MainWindow", "Metoda 2"))
-        self.label_13.setText(_translate("MainWindow", "Function to calculate"))
+        self.calculateFunctionComboBox.setItemText(0, _translate("MainWindow", "Michalewicz"))
+        self.calculateFunctionComboBox.setItemText(1, _translate("MainWindow", "Shifted and Rotated HappyCat Function"))
+        self.label_13.setText(_translate("MainWindow", "Function to find optimum"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Range"))
         self.label.setText(_translate("MainWindow", "Begin"))
         self.rangeBeginningTextEdit.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"

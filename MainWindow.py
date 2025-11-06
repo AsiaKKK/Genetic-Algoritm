@@ -21,8 +21,18 @@ class MainWindow(QMainWindow):
     def on_selection_method_change(self):
         """Pokazuje lub ukrywa pole rozmiaru turnieju na podstawie combo boxa."""
         is_tournament = (self.ui.selectionMethodComboBox.currentText() == "Tournament Selection")
+        is_roulette = (self.ui.selectionMethodComboBox.currentText() == "Roulette Selection")
         self.ui.tournamentSizeTextEdit.setVisible(is_tournament)
         self.ui.label_16.setVisible(is_tournament)
+        if is_tournament:
+            self.ui.label_15.setText("Tournament number")
+            self.ui.bestToSelectTextEdit.setPlainText("5")
+        elif is_roulette:
+            self.ui.label_15.setText("% to select")
+            self.ui.bestToSelectTextEdit.setPlainText("0.33")
+        else:
+            self.ui.label_15.setText("% best to select")
+            self.ui.bestToSelectTextEdit.setPlainText("0.33")
 
     
     def _validate_field(self, widget, convert_to_type, error_msg, validation_rule=None):
@@ -47,7 +57,7 @@ class MainWindow(QMainWindow):
         except ValueError as e:
             self.ui.warningLabel.setText(str(e))
         except Exception as e:
-            self.ui.warningLabel.setText(f"Błąd wykonania: {e}")
+            print(e)
 
     
     def _try_get_user_input(self):
@@ -90,11 +100,16 @@ class MainWindow(QMainWindow):
         inversion_prob = self._validate_field(self.ui.inversionProbabilityTextEdit, float, "Inversion probability must be (0, 1).", is_probability)
         elite_strategy = self._validate_field(self.ui.eliteStrategyTextEdit, float, "Elite strategy must be (0, 1).", is_probability)
         mutation_prob = self._validate_field(self.ui.mutationProbabilityTextEdit, float, "Mutation probability must be (0, 1).", is_probability)
-        best_to_select = self._validate_field(self.ui.bestToSelectTextEdit, float, "Best to select must be (0, 1).", is_probability)
 
         tournament_size = None
         if selection_method == "Tournament Selection":
             tournament_size = self._validate_field(self.ui.tournamentSizeTextEdit, int, "Tournament size must be a positive integer.", is_positive_int)
+            best_to_select = self._validate_field(self.ui.bestToSelectTextEdit, int, "Tournament size must be positive integer", is_positive_int)
+            if tournament_size*best_to_select > population_size:
+                raise ValueError("Tournament size multiplied by tournament number must be smaller than or equal to population size.")
+        else:
+            best_to_select = self._validate_field(self.ui.bestToSelectTextEdit, float, "Best to select must be (0, 1).",
+                                                  is_probability)
 
         cross_method = self.ui.crossMethodComboBox.currentText()
         mutation_method = self.ui.mutationMethodComboBox.currentText()
@@ -122,8 +137,6 @@ class MainWindow(QMainWindow):
         print(genetic_algorithm)
         genetic_algorithm.calculate()
         genetic_algorithm.print_population()
-        
-
 
 
     def changePlotsComboBox(self):

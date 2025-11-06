@@ -24,6 +24,7 @@ class Individual:
         self.fitness: float = None
 
 
+
     def __repr__(self):
         f_val = f"{self.fitness:.4f}" if self.fitness is not None else "None"
 

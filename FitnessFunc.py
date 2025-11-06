@@ -1,12 +1,13 @@
 import math
 
+# pobiera wartosc z comboboxa i w zaleznosci od wartosci, wybierana jest fitness function
 class FitnessFunc:
 
     @staticmethod
     def get_function(func_name):
-        if func_name == "Metoda 1":
+        if func_name == "Michalewicz":
             return FitnessFunc._fitness1
-        elif func_name == "Metoda 2":
+        elif func_name == "Shifted and Rotated HappyCat Function":
             return FitnessFunc._fitness2
         else:
             raise ValueError(f"Nie rozpoznano funkcji celu : {func_name}")
