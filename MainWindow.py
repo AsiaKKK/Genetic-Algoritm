@@ -16,9 +16,13 @@ class MainWindow(QMainWindow):
 
         self.ui.label_16.setVisible(False)
         self.ui.tournamentSizeTextEdit.setVisible(False)
+        self.ui.label_6.setVisible(False)
+        self.ui.crossProbabilityTextEdit.setVisible(False)
 
         self.ui.selectionMethodComboBox.currentTextChanged.connect(self.on_selection_method_change)
+        self.ui.crossMethodComboBox.currentTextChanged.connect(self.on_cross_method_change)
         self.ui.calculateButton.clicked.connect(self.on_calculate_button_clicked)
+
 
     def on_selection_method_change(self):
         """Pokazuje lub ukrywa pole rozmiaru turnieju na podstawie combo boxa."""
@@ -36,7 +40,11 @@ class MainWindow(QMainWindow):
             self.ui.label_15.setText("% best to select")
             self.ui.bestToSelectTextEdit.setPlainText("0.33")
 
-    
+    def on_cross_method_change(self):
+        is_homogenius = (self.ui.crossMethodComboBox.currentText() == "Homogenius")
+        self.ui.crossProbabilityTextEdit.setVisible(is_homogenius)
+        self.ui.label_6.setVisible(is_homogenius)
+
     def _validate_field(self, widget, convert_to_type, error_msg, validation_rule=None):
         """Funkcja pomocnicza - waliduje pojedynzce pola."""
         try:

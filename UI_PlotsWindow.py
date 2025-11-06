@@ -11,7 +11,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_PlotsWindow(object):
     def setupUi(self, PlotsWindow):
         PlotsWindow.setObjectName("PlotsWindow")
-        PlotsWindow.resize(724, 433)
+        PlotsWindow.resize(760, 433)
         self.centralwidget = QtWidgets.QWidget(parent=PlotsWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.comboBox = QtWidgets.QComboBox(parent=self.centralwidget)
@@ -51,7 +51,8 @@ class Ui_PlotsWindow(object):
         self.fitnessResultValue.setFont(font)
         self.fitnessResultValue.setObjectName("fitnessResultValue")
         self.label_6 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_6.setGeometry(QtCore.QRect(570, 240, 200, 16))
+        self.label_6.setGeometry(QtCore.QRect(570, 240, 200, 40))
+        self.label_6.setWordWrap(True)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_6.setFont(font)
