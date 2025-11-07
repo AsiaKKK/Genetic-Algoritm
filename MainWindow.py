@@ -1,6 +1,7 @@
+import os
 import time
 import io
-
+import datetime
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMainWindow
 from matplotlib import pyplot as plt
@@ -174,6 +175,9 @@ class MainWindow(QMainWindow):
         self.plot_window.ui.timeValue.setText(f"{elapsed:.4f} sec")
 
         self.on_plot_type_change()
+        self.save_plot_graph_avg()
+        self.save_plot_graph_std()
+        self.save_plot_graph_best()
 
     def changePlotsComboBox(self):
         if self.ui.maximumRadioButton.isChecked():
@@ -222,40 +226,44 @@ class MainWindow(QMainWindow):
         pixmap = self.plot_graph(self.genetic_algorithm.std_fitness_history, "Standard Deviation of Fitness Value Over Iterations", "Std of Fitness Value")
         self.plot_window.ui.plotArea.setPixmap(pixmap)
         self.plot_window.ui.plotArea.setScaledContents(True)
-    # def save_plot_graph(self, history, title, legend):
-    #     epoch_num = len(history)
-    #     epochs = range(1, epoch_num + 1)
-    #
-    #     plt.figure(figsize=(10, 6))
-    #     plt.plot(epochs, history)
-    #
-    #     plt.title(title)
-    #     plt.xlabel("Epoch")
-    #     plt.ylabel("Value")
-    #
-    #     plt.grid(True)
-    #     plt.legend([legend])
-    #
-    #     ax = plt.gca()
-    #     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-    #
-    #     plot_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    #
-    #     plt.tight_layout()
-    #     filename = f"./Plots/{legend.replace(" ", "_")}_plot_{plot_id}"
-    #     plt.savefig(filename)
-    #     plt.close()
-    #
-    #     return filename
-    #
-    # def save_plot_graph_best(self):
-    #     return self.plot_graph(self.genetic_algorithm.best_fitness_history, "Best Fitness Value Over Iterations", "Best score")
-    #
-    # def save_plot_graph_avg(self):
-    #     return self.plot_graph(self.genetic_algorithm.avg_fitness_history, "Average Fitness Value Over Iterations", "Average score")
-    #
-    # def save_plot_graph_std(self):
-    #     return self.plot_graph(self.genetic_algorithm.std_fitness_history, "Standard Deviation of Fitness Value Over Iterations", "Std of Fitness Value")
+    def save_plot_graph(self, history, title, legend):
+        epoch_num = len(history)
+        epochs = range(1, epoch_num + 1)
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(epochs, history)
+
+        plt.title(title)
+        plt.xlabel("Epoch")
+        plt.ylabel("Value")
+
+        plt.grid(True)
+        plt.legend([legend])
+
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+        plot_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+        os.makedirs("./Plots", exist_ok=True)
+
+        plt.tight_layout()
+        filename = f"./Plots/{legend.replace(" ", "_")}_plot_{plot_id}.png"
+        plt.savefig(filename)
+
+        print(f"Wykres zapisany: {filename}")
+        plt.close()
+
+
+
+    def save_plot_graph_best(self):
+        self.save_plot_graph(self.genetic_algorithm.best_fitness_history, "Best Fitness Value Over Iterations", "Best score")
+
+    def save_plot_graph_avg(self):
+        self.save_plot_graph(self.genetic_algorithm.avg_fitness_history, "Average Fitness Value Over Iterations", "Average score")
+
+    def save_plot_graph_std(self):
+        self.save_plot_graph(self.genetic_algorithm.std_fitness_history, "Standard Deviation of Fitness Value Over Iterations", "Std of Fitness Value")
 
     def on_plot_type_change(self):
         text = self.plot_window.ui.comboBox.currentText()
