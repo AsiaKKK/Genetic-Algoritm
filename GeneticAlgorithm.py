@@ -1,4 +1,8 @@
-from typing import List
+import datetime
+from typing import List, io
+
+from PyQt6.QtGui import QPixmap
+
 from Individual import Individual
 from FitnessFunc import FitnessFunc
 from GeneticOperators import GeneticOperators
@@ -6,8 +10,7 @@ import math
 import random
 import statistics
 import sqlite3
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
+import os
 
 
 class GeneticAlgorithm:
@@ -44,7 +47,7 @@ class GeneticAlgorithm:
     Elite strategy:     {self.user_input.percent_elite_strategy}"""
 
     
-    def print_population(self):
+    def print_population(self, epoch, connection):
         print("\n--- Current State ---")
         if self.population:
             print(f"    Population size:    {len(self.population)}")
@@ -59,7 +62,21 @@ class GeneticAlgorithm:
                         self.phenotype = ind.phenotype
                         break
 
-                print(f"    Current best fitness: Individual(params={self.phenotype},fitness= {self.best_fit})")
+                self.insert_into_db(epoch, self.phenotype, self.best_fit, connection)
+                cursor = connection.cursor()
+                row = cursor.execute("SELECT * FROM best_fitness_history order by id desc")
+                row = row.fetchone()
+                if row:
+                    curr_epoch = row[0]
+                    phenotype = row[1]
+                    best_fitness = row[2]
+                else:
+                    curr_epoch = 0  # np. jeśli tabela jest pusta
+                    phenotype = 0
+                    best_fitness = 0
+                self.best_fitness_history.append(best_fitness)
+                print(f"    Current best fitness | Phenotype: {phenotype} | Fitness: {best_fitness}")
+
 
             except ValueError:
                 print(f"    Current best fitness:   N/A")
@@ -174,13 +191,13 @@ class GeneticAlgorithm:
         return offspring
 
     
-    def add_best_fit(self):
-        best_fitness = min(individual.fitness for individual in self.population)
-        
-        if self.user_input.optimization_method == 'max':
-            self.best_fitness_history.append(-best_fitness)
-        else:
-            self.best_fitness_history.append(best_fitness)
+    # def add_best_fit(self):
+    #     best_fitness = min(individual.fitness for individual in self.population)
+    #
+    #     if self.user_input.optimization_method == 'max':
+    #         self.best_fitness_history.append(-best_fitness)
+    #     else:
+    #         self.best_fitness_history.append(best_fitness)
 
 
     def add_avg_fit(self):
@@ -204,45 +221,42 @@ class GeneticAlgorithm:
 
     def get_history(self):
         return self.best_fitness_history, self.avg_fitness_history, self.std_fitness_history
-    
 
-    def plot_graph(self, history, title, legend):
-        epoch_num = len(history)
-        epochs = range(1, epoch_num + 1)
+    def initialize_db(self):
+        base_name = "data"
+        num = 0
 
-        plt.figure(figsize=(10, 6)) 
-        plt.plot(epochs, history)  
+        while os.path.exists(f"./Data/{base_name}{num}.db"):
+            num += 1
 
-        plt.title(title)
-        plt.xlabel("Epoch")
-        plt.ylabel("Value")
+        file_name = f"./Data/{base_name}{num}.db"
+        conn = sqlite3.connect(file_name)
 
-        plt.grid(True)
-        plt.legend([legend])
+        cursor = conn.cursor()
 
-        ax = plt.gca()
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS best_fitness_history (
+            id INTEGER PRIMARY KEY,
+            phenotype TEXT NOT NULL,
+            best_fitness DECIMAL NOT NULL
+        )
+        """)
 
-        plt.show()
+        return conn
 
-
-    def plot_graph_best(self):
-        self.plot_graph(self.best_fitness_history, "Minimum Fitness Value Over Iterations", "Best score")
-
-    
-    def plot_graph_avg(self):
-        self.plot_graph(self.avg_fitness_history, "Average Fitness Value Over Iterations", "Average score")
-
-    
-    def plot_graph_std(self):
-        self.plot_graph(self.std_fitness_history, "Standard Deviation of Fitness Value Over Iterations", "Std of Fitness Value")
-        
+    def insert_into_db(self, epoch, phenotype, fit, connection):
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO best_fitness_history (id, phenotype, best_fitness) VALUES (?, ?, ?)", (epoch, str(phenotype), fit))
+        connection.commit()
 
     def calculate(self):
         self._init_population()
+        connection = self.initialize_db()
 
         for epoch in range(self.user_input.epochs):
-            print(f"--- Epoch {epoch + 1}/{self.user_input.epochs} ---")
+            current_epoch = epoch + 1
+            print("\n")
+            print(f"--- Epoch {current_epoch}/{self.user_input.epochs} ---")
             new_population =[]
             # selekcja elit - od razu do następnej iteracji
             elite_best_individuals = GeneticOperators.selection_best(self.population,self.user_input.percent_elite_strategy, self.user_input.optimization_method)
@@ -262,8 +276,10 @@ class GeneticAlgorithm:
             
             self.population = new_population
 
-            self.add_best_fit()
+            # self.add_best_fit()
             self.add_avg_fit()
             self.add_std_fit()
 
-            self.print_population()
+            self.print_population(current_epoch, connection)
+
+        connection.close()

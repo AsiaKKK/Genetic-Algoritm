@@ -60,7 +60,7 @@ class Ui_PlotsWindow(object):
         self.label_7 = QtWidgets.QLabel(parent=self.centralwidget)
         self.label_7.setGeometry(QtCore.QRect(10, 10, 91, 16))
         self.label_7.setObjectName("label_7")
-        self.plotArea = QtWidgets.QWidget(parent=self.centralwidget)
+        self.plotArea = QtWidgets.QLabel(parent=self.centralwidget)
         self.plotArea.setGeometry(QtCore.QRect(10, 60, 551, 311))
         self.plotArea.setObjectName("plotArea")
         PlotsWindow.setCentralWidget(self.centralwidget)
