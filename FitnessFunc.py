@@ -1,18 +1,14 @@
 import math
 import numpy as np
-import opfunu
-from opfunu.cec_based.cec2014 import F132014
-
-# pobiera wartosc z comboboxa i w zaleznosci od wartosci, wybierana jest fitness function
 class FitnessFunc:
 
     @staticmethod
     def get_function(func_name):
         if func_name == "Michalewicz":
             return FitnessFunc._michalewicz
-        elif func_name == "Shifted and Rotated HappyCat Function":
+        elif func_name == "HappyCat Function":
             return FitnessFunc._happy_cat_func
-        elif func_name == "Funkcja 3":
+        elif func_name == "Shifted and Rotated HappyCat Function":
             return FitnessFunc._rotated_happy_cat_func
         else:
             raise ValueError(f"Nie rozpoznano funkcji celu : {func_name}")

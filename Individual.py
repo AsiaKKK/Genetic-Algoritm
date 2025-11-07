@@ -1,7 +1,6 @@
 from typing import List
 import random
-import UserInput
-import math
+
 
 class Individual:
     def __init__(self, param_num, bits_per_param, chromosome: List[int] = None):

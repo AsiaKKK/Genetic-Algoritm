@@ -1,15 +1,9 @@
-import os
 import time
-import datetime
 import io
 
-from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMainWindow
-from PyQt6.QtWidgets import QWidget
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
 from UI_MainWindow import Ui_MainWindow
@@ -143,10 +137,14 @@ class MainWindow(QMainWindow):
         else:
             best_to_select = self._validate_field(self.ui.bestToSelectTextEdit, float, "Best to select must be (0, 1).",
                                                   is_probability)
-
         cross_method = self.ui.crossMethodComboBox.currentText()
         mutation_method = self.ui.mutationMethodComboBox.currentText()
         func_name = self.ui.calculateFunctionComboBox.currentText()
+        if func_name == "Shifted and Rotated HappyCat Function":
+            params = [10, 20, 30, 50, 100]
+            if param_num not in params:
+                raise ValueError(f" Number of parameters must be one of: {params} for Shifted and Rotated HappyCat Function")
+
         optimization_method = "min" if self.ui.minimumRadioButton.isChecked() else "max"
 
         self.ui.warningLabel.setText("")

@@ -1,8 +1,5 @@
-import datetime
-from typing import List, io
 
-from PyQt6.QtGui import QPixmap
-
+from typing import List
 from Individual import Individual
 from FitnessFunc import FitnessFunc
 from GeneticOperators import GeneticOperators
