@@ -23,10 +23,16 @@ class GeneticOperators:
 
         if optimization_method == "max":
             fitness_sum = sum(ind.fitness for ind in population)
-            probabilities = [abs(ind.fitness / fitness_sum) for ind in population]
+            probabilities = [
+                abs((ind.fitness if ind.fitness != 0 else 0.001) / fitness_sum)
+                for ind in population
+            ]
         else:
-            fitness_sum = sum(1 / ind.fitness for ind in population)
-            probabilities = [abs((1 / ind.fitness) / fitness_sum) for ind in population]
+            fitness_sum = sum((1 / ind.fitness) if ind.fitness != 0 else (1 / 0.001) for ind in population)
+            probabilities = [
+                abs(((1 / ind.fitness) if ind.fitness != 0 else (1 / 0.001)) / fitness_sum)
+                for ind in population
+            ]
 
         distributors = np.cumsum(probabilities)
 
