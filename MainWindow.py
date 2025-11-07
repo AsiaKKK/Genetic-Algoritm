@@ -175,6 +175,7 @@ class MainWindow(QMainWindow):
         self.plot_window.ui.timeValue.setText(f"{elapsed:.4f} sec")
 
         self.on_plot_type_change()
+        print(f"Czas:{elapsed}")
         self.save_plot_graph_avg()
         self.save_plot_graph_std()
         self.save_plot_graph_best()

@@ -72,14 +72,14 @@ class GeneticAlgorithm:
                     phenotype = 0
                     best_fitness = 0
                 self.best_fitness_history.append(best_fitness)
-                print(f"    Current best fitness | Phenotype: {phenotype} | Fitness: {best_fitness}")
+                print(f"    Current best fitness | Phenotype: {phenotype} | Fitness: {best_fitness} | ")
 
 
             except ValueError:
                 print(f"    Current best fitness:   N/A")
 
-            for individual in self.population:
-                print(f"    {individual}")
+            # for individual in self.population:
+            #     #print(f"    {individual}")
         
         else:
             print(" No population yet!")
