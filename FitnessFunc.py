@@ -1,6 +1,7 @@
 import math
 import numpy as np
-import Individual
+import opfunu
+from opfunu.cec_based.cec2014 import F132014
 
 # pobiera wartosc z comboboxa i w zaleznosci od wartosci, wybierana jest fitness function
 class FitnessFunc:
@@ -12,7 +13,7 @@ class FitnessFunc:
         elif func_name == "Shifted and Rotated HappyCat Function":
             return FitnessFunc._happy_cat_func
         elif func_name == "Funkcja 3":
-            return FitnessFunc._happy_cat_func
+            return FitnessFunc._rotated_happy_cat_func
         else:
             raise ValueError(f"Nie rozpoznano funkcji celu : {func_name}")
     #
@@ -45,3 +46,10 @@ class FitnessFunc:
         t1 = np.sum(z)
         t2 = np.sum(z ** 2)
         return np.abs(t2 - ndim) ** 0.25 + (0.5 * t2 + t1) / ndim + 0.5
+    
+
+    def _rotated_happy_cat_func(x: list[float]) -> float:
+        from opfunu.cec_based import F132014
+        ndim = len(x)
+        func = F132014(ndim=ndim)
+        return func.evaluate(x)
