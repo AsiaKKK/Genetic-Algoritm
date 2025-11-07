@@ -5,6 +5,7 @@ from GeneticOperators import GeneticOperators
 import math
 import random
 import statistics
+import sqlite3
 
 class GeneticAlgorithm:
     def __init__(self, user_input):

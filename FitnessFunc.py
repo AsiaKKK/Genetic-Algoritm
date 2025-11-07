@@ -11,6 +11,8 @@ class FitnessFunc:
             return FitnessFunc._michalewicz
         elif func_name == "Shifted and Rotated HappyCat Function":
             return FitnessFunc._happy_cat_func
+        elif func_name == "Funkcja 3":
+            return FitnessFunc._happy_cat_func
         else:
             raise ValueError(f"Nie rozpoznano funkcji celu : {func_name}")
     #
