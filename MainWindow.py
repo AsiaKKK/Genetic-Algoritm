@@ -7,6 +7,7 @@ from PlotsWindow import PlotWindow
 from UserInput import UserInput
 from GeneticAlgorithm import GeneticAlgorithm
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -153,6 +154,9 @@ class MainWindow(QMainWindow):
         self.plot_window.ui.fitnessResultValue.setText(str(genetic_algorithm.best_fit))
         self.plot_window.ui.label_6.setText(str(genetic_algorithm.phenotype))
         self.plot_window.ui.timeValue.setText(f"{elapsed:.4f} sec")
+        genetic_algorithm.plot_graph_best()
+        genetic_algorithm.plot_graph_avg()
+        genetic_algorithm.plot_graph_std()
 
 
     def changePlotsComboBox(self):

@@ -6,6 +6,9 @@ import math
 import random
 import statistics
 import sqlite3
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+
 
 class GeneticAlgorithm:
     def __init__(self, user_input):
@@ -201,7 +204,39 @@ class GeneticAlgorithm:
 
     def get_history(self):
         return self.best_fitness_history, self.avg_fitness_history, self.std_fitness_history
+    
 
+    def plot_graph(self, history, title, legend):
+        epoch_num = len(history)
+        epochs = range(1, epoch_num + 1)
+
+        plt.figure(figsize=(10, 6)) 
+        plt.plot(epochs, history)  
+
+        plt.title(title)
+        plt.xlabel("Epoch")
+        plt.ylabel("Value")
+
+        plt.grid(True)
+        plt.legend([legend])
+
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+        plt.show()
+
+
+    def plot_graph_best(self):
+        self.plot_graph(self.best_fitness_history, "Minimum Fitness Value Over Iterations", "Best score")
+
+    
+    def plot_graph_avg(self):
+        self.plot_graph(self.avg_fitness_history, "Average Fitness Value Over Iterations", "Average score")
+
+    
+    def plot_graph_std(self):
+        self.plot_graph(self.std_fitness_history, "Standard Deviation of Fitness Value Over Iterations", "Std of Fitness Value")
+        
 
     def calculate(self):
         self._init_population()
