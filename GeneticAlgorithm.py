@@ -133,56 +133,59 @@ class GeneticAlgorithm:
     
 
     def _crossover(self, parents, offspring_missing_num):
-        bits_per_param = self.get_bits_per_param()
+        # bits_per_param = self.get_bits_per_param()
 
-        if self.user_input.cross_method == 'One Point':
-            offspring = GeneticOperators.cross_one_point(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
+        # if self.user_input.cross_method == 'One Point':
+        #     offspring = GeneticOperators.cross_one_point(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
 
-        elif self.user_input.cross_method == 'Two Point':
-            offspring = GeneticOperators.cross_two_point(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
+        # elif self.user_input.cross_method == 'Two Point':
+        #     offspring = GeneticOperators.cross_two_point(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
 
-        elif self.user_input.cross_method == 'Homogenius':
-            offspring = GeneticOperators.cross_homogenous(parents, self.user_input.cross_probability,self.user_input.param_num, bits_per_param, offspring_missing_num)
+        # elif self.user_input.cross_method == 'Homogenius':
+        #     offspring = GeneticOperators.cross_homogenous(parents, self.user_input.cross_probability,self.user_input.param_num, bits_per_param, offspring_missing_num)
 
-        elif self.user_input.cross_method == 'Granular':
-            offspring = GeneticOperators.cross_granular(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
+        # elif self.user_input.cross_method == 'Granular':
+        #     offspring = GeneticOperators.cross_granular(parents, self.user_input.param_num, bits_per_param, offspring_missing_num)
 
-        return offspring
+        # return offspring
+        pass
 
     
     def _mutation(self, offspring):
-        if self.user_input.mutation_method == 'Edge':
-            offspring = GeneticOperators.mutation_edge(offspring, self.user_input.mutation_probability)
+        # if self.user_input.mutation_method == 'Edge':
+        #     offspring = GeneticOperators.mutation_edge(offspring, self.user_input.mutation_probability)
 
-        elif self.user_input.mutation_method == 'One Point':
-            offspring = GeneticOperators.mutation_one_point(offspring, self.user_input.mutation_probability)
+        # elif self.user_input.mutation_method == 'One Point':
+        #     offspring = GeneticOperators.mutation_one_point(offspring, self.user_input.mutation_probability)
 
-        elif self.user_input.mutation_method == 'Two Points':
-            offspring = GeneticOperators.mutation_two_points(offspring, self.user_input.mutation_probability)
+        # elif self.user_input.mutation_method == 'Two Points':
+        #     offspring = GeneticOperators.mutation_two_points(offspring, self.user_input.mutation_probability)
 
-        return offspring
+        # return offspring
+        pass
 
 
     def _inversion(self, offspring):
-        num_bits = len(offspring[0].chromosome)
+        # num_bits = len(offspring[0].chromosome)
 
-        for o in offspring:
-            alpha = random.random()
+        # for o in offspring:
+        #     alpha = random.random()
 
-            if alpha <= self.user_input.inversion_probability:
-                cut1 = random.randint(0, num_bits - 1)
-                cut2 = random.randint(0, num_bits - 1)
+        #     if alpha <= self.user_input.inversion_probability:
+        #         cut1 = random.randint(0, num_bits - 1)
+        #         cut2 = random.randint(0, num_bits - 1)
             
-                while cut1 == cut2:
-                    cut2 = random.randint(0, num_bits - 1)
+        #         while cut1 == cut2:
+        #             cut2 = random.randint(0, num_bits - 1)
 
-                p1 = min(cut1, cut2)
-                p2 = max(cut1, cut2)
+        #         p1 = min(cut1, cut2)
+        #         p2 = max(cut1, cut2)
 
-                for i in range(p1, p2 + 1):
-                    o.chromosome[i] = 1 - o.chromosome[i]
+        #         for i in range(p1, p2 + 1):
+        #             o.chromosome[i] = 1 - o.chromosome[i]
 
-        return offspring
+        # return offspring
+        pass
 
     
     # def add_best_fit(self):
@@ -254,7 +257,7 @@ class GeneticAlgorithm:
             current_epoch = epoch + 1
             print("\n")
             print(f"--- Epoch {current_epoch}/{self.user_input.epochs} ---")
-            new_population =[]
+            new_population = []
             # selekcja elit - od razu do następnej iteracji
             elite_best_individuals = GeneticOperators.selection_best(self.population,self.user_input.percent_elite_strategy, self.user_input.optimization_method)
             offspring_missing_num = self.user_input.population_size - len(elite_best_individuals)
