@@ -1,5 +1,3 @@
-
-from typing import List
 from Individual import Individual
 from FitnessFunc import FitnessFunc
 from GeneticOperators import GeneticOperators
@@ -14,7 +12,7 @@ class GeneticAlgorithm:
     def __init__(self, user_input):
         self.user_input = user_input
         self.fitness_func = FitnessFunc.get_function(user_input.func_name)
-        self.population: List[Individual] = []
+        self.population: list[Individual] = []
 
         self.best_fitness_history = []
         self.avg_fitness_history = []
@@ -56,10 +54,10 @@ class GeneticAlgorithm:
                 )
                 for ind in self.population:
                     if ind.fitness == self.best_fit:
-                        self.phenotype = ind.phenotype
+                        phenotype = ind.phenotype
                         break
 
-                self.insert_into_db(epoch, self.phenotype, self.best_fit, connection)
+                self.insert_into_db(epoch, phenotype, self.best_fit, connection)
                 cursor = connection.cursor()
                 row = cursor.execute("SELECT * FROM best_fitness_history order by id desc")
                 row = row.fetchone()
@@ -85,12 +83,12 @@ class GeneticAlgorithm:
             print(" No population yet!")
 
 
-    def get_bits_per_param(self):
-        num_space = (self.user_input.range_end - self.user_input.range_begin) * 10**self.user_input.precision + 1   
-        # (b-a) * 10^pr <= 2^m -1
-        bits_per_param = math.ceil(math.log2(num_space))    
-        # ceil - mamy np 3.49, lepiej mieć 4 bity niż 3, wtedy zabraknie nam miejsca
-        return int(bits_per_param)  # bo ceil zwraca float..
+    # def get_bits_per_param(self):
+    #     num_space = (self.user_input.range_end - self.user_input.range_begin) * 10**self.user_input.precision + 1
+    #     # (b-a) * 10^pr <= 2^m -1
+    #     bits_per_param = math.ceil(math.log2(num_space))
+    #     # ceil - mamy np 3.49, lepiej mieć 4 bity niż 3, wtedy zabraknie nam miejsca
+    #     return int(bits_per_param)  # bo ceil zwraca float..
     
 
     def _init_population(self):
@@ -99,8 +97,10 @@ class GeneticAlgorithm:
         for _ in range(self.user_input.population_size):
 
             ind = Individual(
+                self.user_input.range_begin,
+                self.user_input.range_end,
                 self.user_input.param_num,
-                self.get_bits_per_param(),
+                self.user_input.precision
             )
 
             self._evaluate(ind)
@@ -109,11 +109,7 @@ class GeneticAlgorithm:
 
 
     def _evaluate(self, individual):
-        value = self.fitness_func(individual.get_phenotype(
-            self.user_input.range_begin, 
-            self.user_input.range_end,
-            self.user_input.precision)
-            )
+        value = self.fitness_func(individual.phenotype)
 
         if self.user_input.optimization_method == 'min':
             fitness = value
@@ -121,6 +117,7 @@ class GeneticAlgorithm:
             fitness = -value
         
         individual.fitness = round(fitness, self.user_input.precision)
+
 
     def _selection(self):
         parents = []
@@ -218,6 +215,7 @@ class GeneticAlgorithm:
 
     def get_history(self):
         return self.best_fitness_history, self.avg_fitness_history, self.std_fitness_history
+    
 
     def initialize_db(self):
         base_name = "data"
@@ -241,10 +239,12 @@ class GeneticAlgorithm:
 
         return conn
 
+
     def insert_into_db(self, epoch, phenotype, fit, connection):
         cursor = connection.cursor()
         cursor.execute("INSERT INTO best_fitness_history (id, phenotype, best_fitness) VALUES (?, ?, ?)", (epoch, str(phenotype), fit))
         connection.commit()
+
 
     def calculate(self):
         self._init_population()
