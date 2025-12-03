@@ -151,12 +151,29 @@ class MainWindow(QMainWindow):
         self.ui.warningLabel.setText("")
         print("All correct. Creating UserInput...")
 
-        return UserInput(range_begin, range_end, epochs,
-                         param_num, precision, population_size,
-                         cross_method, cross_prob, inversion_prob,
-                         elite_strategy, mutation_method, mutation_prob,
-                         selection_method, func_name, best_to_select,
-                         optimization_method, tournament_size)
+        return UserInput(
+            range_begin=range_begin,
+            range_end=range_end,
+            epochs=epochs,
+            param_num=param_num,
+            precision=precision,
+            population_size=population_size,
+
+            cross_probability=cross_prob,
+            inversion_probability=inversion_prob,
+            mutation_probability=mutation_prob,
+            
+            percent_elite_strategy=elite_strategy,
+            percent_best_to_select=best_to_select,
+
+            cross_method=cross_method,
+            mutation_method=mutation_method,
+            selection_method=selection_method,
+            optimization_method=optimization_method,
+            
+            func_name=func_name,
+            tournament_size=tournament_size
+        )
 
     def _run_algorithm(self, user_input: UserInput):
         print("Running the algorithm...")

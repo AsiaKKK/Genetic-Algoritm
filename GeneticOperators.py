@@ -3,24 +3,34 @@ from Individual import Individual
 import numpy as np
 
 class GeneticOperators:
-
     # --- SELEKCJA
     @staticmethod
-    def selection_best(population: list[Individual], percent_best_to_select: float, optimization: str):
+    def selection_best(population: list[Individual], user_input, elite: bool = False):
+        optimization = user_input.optimization_method
+        if elite:
+            percent_best = user_input.percent_elite_strategy
+        else: 
+            percent_best = user_input.percent_best_to_select
+
+
         reverse_order = True if optimization == 'max' else False
         sorted_population = sorted(population, key=lambda i: i.fitness, reverse=reverse_order)
         n = len(population)
 
-        parents_population_size = int(n*percent_best_to_select)
-        parents_population = sorted_population[:parents_population_size]
-        return parents_population
+        parents_population_size = int(n*percent_best)
+        parents = sorted_population[:parents_population_size]
+        return parents
+
 
     
     @staticmethod
-    def selection_roulette(population: list[Individual], optimization_method: str, percent_to_select: float):
+    def selection_roulette(population: list[Individual], user_input):
+        optimization = user_input.optimization_method
+        percent_to_select = user_input.percent_best_to_select
+
         number_of_roulettes = int(len(population)*percent_to_select)
 
-        if optimization_method == "max":
+        if optimization == "max":
             fitness_sum = sum(ind.fitness for ind in population)
             probabilities = [
                 abs((ind.fitness if ind.fitness != 0 else 0.001) / fitness_sum)
@@ -48,7 +58,10 @@ class GeneticOperators:
 
 
     @staticmethod
-    def selection_tournament(population: list['Individual'], tournament_size: int, tournament_number: int, optimization_method: str):
+    def selection_tournament(population: list[Individual], user_input):
+        tournament_size = user_input.tournament_size
+        tournament_number = user_input.percent_best_to_select
+        optimization = user_input.optimization_method
 
         population_size = len(population)
         tournament_winners = []
@@ -63,7 +76,7 @@ class GeneticOperators:
                     already_chosen.add(random_ind_num)
                     single_tournament.append(population[random_ind_num])
 
-            if optimization_method == 'max':
+            if optimization == 'max':
                 winner = max(single_tournament, key=lambda ind: ind.fitness)
             else:
                 winner = min(single_tournament, key=lambda ind: ind.fitness)
@@ -73,7 +86,35 @@ class GeneticOperators:
         return tournament_winners
 
     
-    # # --- KRZYŻOWANIE
+    # --- KRZYŻOWANIE
+    @staticmethod
+    def crossover_arithmetic(parents: list[Individual], user_input, offspring_missing_num: int):
+        pass
+
+    @staticmethod
+    def crossover_linear(parents: list[Individual], user_input, offspring_missing_num: int):
+        pass
+
+    @staticmethod
+    def crossover_blend_a(parents: list[Individual], user_input, offspring_missing_num: int):
+        pass
+
+    @staticmethod
+    def crossover_blend_a_b(parents: list[Individual], user_input, offspring_missing_num: int):
+        pass
+
+    @staticmethod
+    def crossover_average(parents: list[Individual], user_input, offspring_missing_num: int):
+        pass
+
+
+    # --- MUTACJA
+    def mutation_uniform(offspring: list[Individual], prob: float):
+        pass
+
+    def mutation_gaussian(offspring: list[Individual], prob: float):
+        pass
+
     # @staticmethod
     # def cross_one_point(parents, param_num, bits_per_param, offspring_missing_num):
     #     offspring = []

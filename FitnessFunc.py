@@ -12,7 +12,7 @@ class FitnessFunc:
             raise ValueError(f"Nie rozpoznano funkcji celu : {func_name}")
 
     @staticmethod
-    def _michalewicz(x: list[float], m: int = 10) -> float:
+    def _michalewicz(x: np.ndarray, m: int = 10) -> float:
         x1 = np.array(x)
         ndim = len(x1)
         s = 0.0
@@ -23,7 +23,7 @@ class FitnessFunc:
         return -s
 
     @staticmethod
-    def _rotated_happy_cat_func(x: list[float]) -> float:
+    def _rotated_happy_cat_func(x: np.ndarray) -> float:
         from opfunu.cec_based import F132014
         ndim = len(x)
         func = F132014(ndim=ndim)

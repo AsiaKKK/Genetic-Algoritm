@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from dataclasses import dataclass, field
 
 @dataclass
@@ -8,15 +9,15 @@ class Individual:
     param_num: int
     precision: int
 
-    phenotype: list[float] | None = None
+    phenotype: np.ndarray | None = None
     fitness: float = field(init=False, default=None)
 
     def __post_init__(self):
         if self.phenotype is None:
-            self.phenotype = [
-                round(random.uniform(self.range_begin, self.range_end), self.precision)
-                for _ in range(self.param_num)
-            ]
+            self.phenotype = np.round(
+                np.random.uniform(self.range_begin, self.range_end, self.param_num),
+                self.precision
+            )
 
     # def __init__(self, param_num, bits_per_param, chromosome: list[int] = None):
     #     self.param_num = param_num #liczba parametrow
