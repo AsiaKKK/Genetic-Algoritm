@@ -1,5 +1,6 @@
 import random
 from Individual import Individual
+from FitnessFunc import FitnessFunc
 import numpy as np
 
 class GeneticOperators:
@@ -88,12 +89,72 @@ class GeneticOperators:
     
     # --- KRZYŻOWANIE
     @staticmethod
-    def crossover_arithmetic(parents: list[Individual], user_input, offspring_missing_num: int):
-        pass
+    def crossover_arithmetic(parents: list[Individual], user_input, offspring_missing_num: int) -> list[Individual]:
+        offspring = []
+
+        rb = user_input.range_begin
+        re = user_input.range_end
+        pn = user_input.param_num
+        pr = user_input.precision
+
+        while len(offspring) < offspring_missing_num:
+            x = random.choice(parents).phenotype
+            y = random.choice(parents).phenotype
+
+            alpha = random.rand()
+
+            x_new = alpha * x + (1 - alpha) * y
+            y_new = alpha * y + (1 - alpha) * x
+
+            offspring.append(Individual(rb, re, pn, pr, phenotype=x_new))
+            offspring.append(Individual(rb, re, pn, pr, phenotype=y_new))
+
+        return offspring[:offspring_missing_num]
+
 
     @staticmethod
     def crossover_linear(parents: list[Individual], user_input, offspring_missing_num: int):
-        pass
+        def evaluate(phenotype: np.ndarray) -> float:
+            fitness_func = FitnessFunc.get_function(user_input.func_name)
+            value = fitness_func(phenotype)
+
+            if user_input.optimization_method == 'min':
+                fitness = value
+            else:
+                fitness = -value
+        
+            return round(fitness, user_input.precision)
+
+
+        offspring = []
+
+        rb = user_input.range_begin
+        re = user_input.range_end
+        pn = user_input.param_num
+        pr = user_input.precision
+
+        while len(offspring) < offspring_missing_num:
+            x = random.choice(parents).phenotype
+            y = random.choice(parents).phenotype
+
+            Z = 0.5 * x + 0.5 * y
+            V = 1.5 * x - 0.5 * y
+            W = -0.5 * x + 1.5 * y
+
+            candidates = [
+                (Z, evaluate(Z)),
+                (V, evaluate(V)),
+                (W, evaluate(W))
+            ]
+
+            candidates.sort(key=lambda x: x[1])
+
+            best = [candidates[0][0], candidates[1][0]]
+            for b in best:
+                offspring.append(Individual(rb, re, pn, pr, phenotype=b))
+
+        return offspring[:offspring_missing_num]
+
 
     @staticmethod
     def crossover_blend_a(parents: list[Individual], user_input, offspring_missing_num: int):
@@ -105,7 +166,22 @@ class GeneticOperators:
 
     @staticmethod
     def crossover_average(parents: list[Individual], user_input, offspring_missing_num: int):
-        pass
+        offspring = []
+
+        rb = user_input.range_begin
+        re = user_input.range_end
+        pn = user_input.param_num
+        pr = user_input.precision
+
+        while len(offspring) < offspring_missing_num:
+            x = random.choice(parents).phenotype
+            y = random.choice(parents).phenotype
+
+            new = (x + y) / 2
+
+            offspring.append(Individual(rb, re, pn, pr, phenotype=new))
+
+        return offspring
 
 
     # --- MUTACJA

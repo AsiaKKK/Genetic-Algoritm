@@ -18,6 +18,9 @@ class Individual:
                 np.random.uniform(self.range_begin, self.range_end, self.param_num),
                 self.precision
             )
+        
+        self.phenotype = np.clip(self.phenotype, self.range_begin, self.range_end)
+        self.phenotype = np.round(self.phenotype, self.precision)
 
     # def __init__(self, param_num, bits_per_param, chromosome: list[int] = None):
     #     self.param_num = param_num #liczba parametrow
