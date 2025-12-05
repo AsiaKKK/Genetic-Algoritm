@@ -101,7 +101,7 @@ class GeneticOperators:
             x = random.choice(parents).phenotype
             y = random.choice(parents).phenotype
 
-            alpha = random.rand()
+            alpha = random.random()
 
             x_new = alpha * x + (1 - alpha) * y
             y_new = alpha * y + (1 - alpha) * x
@@ -158,11 +158,75 @@ class GeneticOperators:
 
     @staticmethod
     def crossover_blend_a(parents: list[Individual], user_input, offspring_missing_num: int):
-        pass
+        offspring = []
+
+        alpha = user_input.alpha
+
+        rb = user_input.range_begin
+        re = user_input.range_end
+        pn = user_input.param_num
+        pr = user_input.precision
+
+        while len(offspring) < offspring_missing_num:
+            p1 = random.choice(parents).phenotype
+            p2 = random.choice(parents).phenotype
+
+            new_ph = np.empty_like(p1)
+
+            for i in range(pn):
+                x = p1[i]
+                y = p2[i]
+
+                d = abs(x - y)
+
+                min_val = min(x, y) - alpha * d
+                max_val = max(x, y) + alpha * d
+
+                new_ph_value = np.random.uniform(min_val, max_val)
+                new_ph[i] = new_ph_value
+
+            offspring.append(Individual(rb, re, pn, pr, phenotype=new_ph))
+        
+        return offspring
+
 
     @staticmethod
     def crossover_blend_a_b(parents: list[Individual], user_input, offspring_missing_num: int):
-        pass
+        offspring = []
+
+        alpha = user_input.alpha
+        beta = user_input.beta
+
+        rb = user_input.range_begin
+        re = user_input.range_end
+        pn = user_input.param_num
+        pr = user_input.precision
+
+        while len(offspring) < offspring_missing_num:
+            p1 = random.choice(parents).phenotype
+            p2 = random.choice(parents).phenotype
+
+            new_ph1 = np.empty_like(p1)
+            new_ph2 = np.empty_like(p1)
+
+            for i in range(pn):
+                x = p1[i]
+                y = p2[i]
+
+                d = abs(x - y)
+
+                min_val = min(x, y) - alpha * d
+                max_val = max(x, y) + beta * d
+
+                new_ph1[i] = np.random.uniform(min_val, max_val)
+                new_ph2[i] = np.random.uniform(min_val, max_val)
+
+            offspring.append(Individual(rb, re, pn, pr, phenotype=new_ph1))
+            offspring.append(Individual(rb, re, pn, pr, phenotype=new_ph2))
+        
+        return offspring[:offspring_missing_num]
+
+
 
     @staticmethod
     def crossover_average(parents: list[Individual], user_input, offspring_missing_num: int):
@@ -185,157 +249,22 @@ class GeneticOperators:
 
 
     # --- MUTACJA
-    def mutation_uniform(offspring: list[Individual], prob: float):
-        pass
-
-    def mutation_gaussian(offspring: list[Individual], prob: float):
-        pass
-
-    # @staticmethod
-    # def cross_one_point(parents, param_num, bits_per_param, offspring_missing_num):
-    #     offspring = []
-    #     num_bits = len(parents[0].chromosome)
-
-    #     while len(offspring) < offspring_missing_num:
-    #         parent1 = random.choice(parents)
-    #         parent2 = random.choice(parents)
-
-    #         cut_point = random.randint(1, num_bits - 1)
-
-    #         child1_chr = parent1.chromosome[:cut_point] + parent2.chromosome[cut_point:]
-    #         child2_chr = parent2.chromosome[:cut_point] + parent1.chromosome[cut_point:]
-     
-    #         offspring.append(Individual(param_num, bits_per_param, child1_chr))
-    #         offspring.append(Individual(param_num, bits_per_param, child2_chr))
-
-    #     # Odcinamy gdy mamy nieparzyście np 51 potomstwa, a potrzebujmy 50
-    #     return offspring[:offspring_missing_num]
-    
-
-    # @staticmethod
-    # def cross_two_point(parents, param_num, bits_per_param, offspring_missing_num):
-    #     offspring = []
-    #     num_bits = len(parents[0].chromosome)
-
-    #     while len(offspring) < offspring_missing_num:
-    #         parent1 = random.choice(parents)
-    #         parent2 = random.choice(parents)
-  
-    #         cut1 = random.randint(1, num_bits - 1)
-    #         cut2 = random.randint(1, num_bits - 1)
-            
-    #         while cut1 == cut2:
-    #             cut2 = random.randint(1, num_bits - 1)
-
-    #         p1 = min(cut1, cut2)
-    #         p2 = max(cut1, cut2)
-
-    #         child1_chr = parent1.chromosome[:p1] + parent2.chromosome[p1:p2] + parent1.chromosome[p2:]
-    #         child2_chr = parent2.chromosome[:p1] + parent1.chromosome[p1:p2] + parent2.chromosome[p2:]
-
-    #         offspring.append(Individual(param_num, bits_per_param, child1_chr))
-    #         offspring.append(Individual(param_num, bits_per_param, child2_chr))
-
-    #     return offspring[:offspring_missing_num]
+    def mutation_uniform(offspring: list[Individual], user_input):
+        mutation_prob = user_input.mutation_probability
+        for ind in offspring:
+            if np.random.random() < mutation_prob:
+                gene_idx = np.random.randint(0, ind.param_num)
+                new_value = np.random.uniform(ind.range_begin, ind.range_end)
+                ind.phenotype[gene_idx] = np.round(new_value, ind.precision)
+        return offspring
 
 
-    # @staticmethod
-    # def cross_homogenous(parents, prob, param_num, bits_per_param, offspring_missing_num):
-    #     offspring = []
-    #     num_bits = len(parents[0].chromosome)
-
-    #     while len(offspring) < offspring_missing_num:
-    #         parent1 = random.choice(parents)
-    #         parent2 = random.choice(parents)
-
-    #         child1_chr = []
-    #         child2_chr = []
-
-    #         for i in range(num_bits):
-    #             alpha = random.random()
-
-    #             if alpha < prob:
-    #                 child1_chr.append(parent2.chromosome[i])
-    #                 child2_chr.append(parent1.chromosome[i])
-
-    #             else:
-    #                 child1_chr.append(parent1.chromosome[i])
-    #                 child2_chr.append(parent2.chromosome[i])
-
-    #         offspring.append(Individual(param_num, bits_per_param, child1_chr))
-    #         offspring.append(Individual(param_num, bits_per_param, child2_chr))
-
-    #     return offspring[:offspring_missing_num]
-
-
-    # @staticmethod
-    # def cross_granular(parents, param_num, bits_per_param, offspring_missing_num):
-    #     offspring = []
-    #     num_bits = len(parents[0].chromosome)
-
-    #     while len(offspring) < offspring_missing_num:
-    #         parent1 = random.choice(parents)
-    #         parent2 = random.choice(parents)
-
-    #         child_chr = []
-
-    #         for i in range(num_bits):
-    #             alpha = random.random()
-
-    #             if alpha <= 0.5:
-    #                 child_chr.append(parent1.chromosome[i])
-                
-    #             else:
-    #                 child_chr.append(parent2.chromosome[i])
-
-    #         offspring.append(Individual(param_num, bits_per_param, child_chr))
-
-    #     return offspring
-    
-
-    # # --- MUTACJA
-    # @staticmethod
-    # def mutation_edge(offspring, prob):
-
-    #     for o in offspring:
-    #         alpha = random.random()
-
-    #         if alpha <= prob:
-    #             o.chromosome[-1] = 1 - o.chromosome[-1]
-
-    #     return offspring
-
-
-    # @staticmethod
-    # def mutation_one_point(offspring, prob):
-    #     num_bits = len(offspring[0].chromosome)
-
-    #     for o in offspring:
-    #         alpha = random.random()
-
-    #         if alpha <= prob:
-    #             p = random.randint(0, num_bits - 1)
-            
-    #             o.chromosome[p] = 1 - o.chromosome[p]
-
-    #     return offspring
-
-
-    # @staticmethod
-    # def mutation_two_points(offspring, prob):
-    #     num_bits = len(offspring[0].chromosome)
-
-    #     for o in offspring:
-    #         alpha = random.random()
-
-    #         if alpha <= prob:
-    #             p1 = random.randint(0, num_bits - 1)
-    #             p2 = random.randint(0, num_bits - 1)
-            
-    #             while p1 == p2:
-    #                 p2 = random.randint(0, num_bits - 1)
-                
-    #             o.chromosome[p1] = 1 - o.chromosome[p1]
-    #             o.chromosome[p2] = 1 - o.chromosome[p2]
-
-    #     return offspring
+    def mutation_gaussian(offspring: list[Individual], user_input):
+        mutation_prob = user_input.mutation_probability
+        for ind in offspring:
+            if np.random.random() < mutation_prob:
+                N = np.random.normal(size=ind.param_num)
+                ind.phenotype = ind.phenotype + N
+                ind.phenotype = np.clip(ind.phenotype, ind.range_begin, ind.range_end)
+                ind.phenotype = np.round(ind.phenotype, ind.precision)
+        return offspring

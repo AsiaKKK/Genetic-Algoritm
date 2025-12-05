@@ -10,8 +10,8 @@ class UserInput:
     precision: int
     population_size: int
 
-    cross_probability: float
-    inversion_probability: float
+    alpha: float
+    beta: float
     mutation_probability: float
     
     percent_elite_strategy: float

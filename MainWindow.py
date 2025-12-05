@@ -24,6 +24,8 @@ class MainWindow(QMainWindow):
         self.ui.tournamentSizeTextEdit.setVisible(False)
         self.ui.label_6.setVisible(False)
         self.ui.crossProbabilityTextEdit.setVisible(False)
+        self.ui.label_12.setVisible(False)
+        self.ui.crossProbabilityTextEdit_2.setVisible(False)
 
         self.ui.selectionMethodComboBox.currentTextChanged.connect(self.on_selection_method_change)
         self.ui.crossMethodComboBox.currentTextChanged.connect(self.on_cross_method_change)
@@ -47,9 +49,20 @@ class MainWindow(QMainWindow):
             self.ui.bestToSelectTextEdit.setPlainText("0.33")
 
     def on_cross_method_change(self):
-        is_homogenius = (self.ui.crossMethodComboBox.currentText() == "Homogenius")
-        self.ui.crossProbabilityTextEdit.setVisible(is_homogenius)
-        self.ui.label_6.setVisible(is_homogenius)
+        current_method = self.ui.crossMethodComboBox.currentText()
+        
+        is_blend_a = (current_method == "blend_a")
+        is_blend_a_b = (current_method == "blend_a_b")
+
+        show_alpha = is_blend_a or is_blend_a_b
+        show_beta = is_blend_a_b
+
+        self.ui.crossProbabilityTextEdit.setVisible(show_alpha)
+        self.ui.label_6.setVisible(show_alpha)
+
+        self.ui.crossProbabilityTextEdit_2.setVisible(show_beta)
+        self.ui.label_12.setVisible(show_beta)
+
 
     def show_plot_in_widget(self, filename:str):
         pixmap = QPixmap(filename)
@@ -89,11 +102,12 @@ class MainWindow(QMainWindow):
             self.ui.paramNumbersTextEdit,
             self.ui.populationSizeTextEdit,
             self.ui.crossProbabilityTextEdit,
-            self.ui.inversionProbabilityTextEdit,
+            self.ui.crossProbabilityTextEdit_2,
             self.ui.eliteStrategyTextEdit,
             self.ui.mutationProbabilityTextEdit,
-            self.ui.bestToSelectTextEdit,
+            self.ui.bestToSelectTextEdit
         )
+
         if any(f.toPlainText().strip() == "" for f in textEdits):
             raise ValueError("Fill in all of the fields")
 
@@ -116,13 +130,16 @@ class MainWindow(QMainWindow):
                                          "Number of params must be positive integer.", is_positive_int)
         population_size = self._validate_field(self.ui.populationSizeTextEdit, int,
                                                "Population size must be positive integer.", is_positive_int)
-
-        cross_prob = self._validate_field(self.ui.crossProbabilityTextEdit, float, "Cross probability must be (0, 1).",
+        
+        alpha = self._validate_field(self.ui.crossProbabilityTextEdit, float, "Alpha must be (0, 1).",
                                           is_probability)
-        inversion_prob = self._validate_field(self.ui.inversionProbabilityTextEdit, float,
-                                              "Inversion probability must be (0, 1).", is_probability)
+        
+        beta = self._validate_field(self.ui.crossProbabilityTextEdit_2, float, "Beta must be (0, 1).",
+                                          is_probability)
+        
         elite_strategy = self._validate_field(self.ui.eliteStrategyTextEdit, float, "Elite strategy must be (0, 1).",
                                               is_probability)
+        
         mutation_prob = self._validate_field(self.ui.mutationProbabilityTextEdit, float,
                                              "Mutation probability must be (0, 1).", is_probability)
 
@@ -159,8 +176,8 @@ class MainWindow(QMainWindow):
             precision=precision,
             population_size=population_size,
 
-            cross_probability=cross_prob,
-            inversion_probability=inversion_prob,
+            alpha=alpha,
+            beta=beta,
             mutation_probability=mutation_prob,
             
             percent_elite_strategy=elite_strategy,
